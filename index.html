@@ -9,7 +9,7 @@
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/js/bootstrap.min.js" integrity="sha384-h0AbiXch4ZDo7tp9hKZ4TsHbi047NrKGLO3SEJAg45jXxnGIfYzk4Si90RDIqNm1" crossorigin="anonymous"></script>
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
     <style>
-      .interim {
+      #interim {
         color: gray;
       }
       html, body {
@@ -31,7 +31,11 @@
         return s.replace(first_char, function(m) { return m.toUpperCase(); });
       }
 
+      var chart;
       google.charts.load('current', {'packages':['corechart']});
+      google.charts.setOnLoadCallback(function() {
+        chart = new google.visualization.PieChart(document.getElementById('piechart'));
+      });
 
       var recognition = new webkitSpeechRecognition();
       //recognition.continuous = true;
@@ -46,12 +50,15 @@
           var r = event.results[i];
           if (r.isFinal) {
             final_transcript += r[0].transcript + " ";
-            final_transcript_formatted += capitalize(r[0].transcript) + ". ";
+            var final_transcript_formatted = capitalize(r[0].transcript) + ". ";
+            $("#final").append(final_transcript_formatted);
           } else {
             interim_transcript += r[0].transcript;
           }
         }
-        results.innerHTML = final_transcript_formatted + "<span class='interim'>" + capitalize(interim_transcript) + "</span>";
+        $("#interim").text(capitalize(interim_transcript));
+
+        results.scrollTop = results.scrollHeight;
         
         current_transcript = final_transcript + interim_transcript;
         
@@ -72,6 +79,8 @@
         items.sort(function(first, second) {
             return second[1] - first[1];
         });
+
+        items = items.slice(0, 100);
         
         rows = "";
         for (var i in items) {
@@ -79,12 +88,14 @@
         }
         tbody.innerHTML = rows;
         
-        var data = new google.visualization.DataTable();
-        data.addColumn('string', 'word');
-        data.addColumn('number', 'f');
-        data.addRows(items);
-        var chart = new google.visualization.PieChart(document.getElementById('piechart'));
-        chart.draw(data);
+        if (chart) {
+          var data = new google.visualization.DataTable();
+          data.addColumn('string', 'word');
+          data.addColumn('number', 'f');
+          data.addRows(items);
+          chart.clearChart();
+          chart.draw(data);
+        }
       }
       recognition.onend = function() {
         recognition.start();
@@ -97,8 +108,11 @@
   </head>
   <body>
     <div class="container">
-      <div class="row">
-        <div class="col" id="results"></div>
+      <div class="row" id="results">
+        <div class="col">
+          <span id="final"></span>
+          <span id="interim"></span>
+        </div>
       </div>
       <div class="row">
         <div class="col">

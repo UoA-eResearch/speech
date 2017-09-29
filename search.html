@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+  </head>
+  <body>
+  <script>
+    (function() {
+      var cx = '016182698365947144337:gritwsscg1e';
+      var gcse = document.createElement('script');
+      gcse.type = 'text/javascript';
+      gcse.async = true;
+      gcse.src = 'https://cse.google.com/cse.js?cx=' + cx;
+      var s = document.getElementsByTagName('script')[0];
+      s.parentNode.insertBefore(gcse, s);
+      
+      var recognition = new webkitSpeechRecognition();
+      recognition.onresult = function(event) {
+        var transcript = event.results[0][0].transcript;
+        console.log(transcript);
+        var element = google.search.cse.element.getElement('standard0');
+        element.execute(transcript);
+      }
+      recognition.onend = function() {
+        recognition.start();
+      }
+      recognition.onerror = function(error) {
+        console.error(error);
+      }
+      recognition.start();
+    })();
+  </script>
+  <gcse:search></gcse:search>
+  </body>
+</html>

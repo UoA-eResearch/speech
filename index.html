@@ -63,6 +63,8 @@
         current_transcript = final_transcript + interim_transcript;
         
         var bits = current_transcript.split(" ");
+        if (bits.length > 100 && !r.isFinal) return;
+
         for (var i in bits) {
           var word = bits[i];
           if (!word) continue;
